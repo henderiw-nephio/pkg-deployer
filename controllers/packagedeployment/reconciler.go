@@ -106,11 +106,14 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
         var v []byte
         _, err := base64.StdEncoding.Decode(v, secret.Data["value"])
         if err != nil {
-			r.l.Error(err, "cannot load kubeconfig")
+			r.l.Error(err, "cannot decode kubeconfig")
 		}
         r.l.Info("cluster", "decoded secret", string(v))
 
 		config, err := clientcmd.Load(v)
+        if err != nil {
+			r.l.Error(err, "cannot load kubeconfig")
+		}
 		
 
 		r.l.Info("cluster", "api config", config)
