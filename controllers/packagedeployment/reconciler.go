@@ -102,6 +102,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			r.l.Error(err, "cannot get secret")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
 		}
+        r.l.Info("cluster", "secret", secret.Data["value"])
 		config, err := clientcmd.Load(secret.Data["value"])
 		if err != nil {
 			r.l.Error(err, "cannot load kubeconfig")
