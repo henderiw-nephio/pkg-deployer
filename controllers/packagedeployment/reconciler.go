@@ -144,6 +144,12 @@ func (r *reconciler) getResources(ctx context.Context, pd *autov1alpha1.PackageD
 	for _, pr := range prList.Items {
 		for _, pkg := range pd.Spec.Packages {
 			// TODO namespace
+
+			r.l.Info("get resources",
+				"PackageName", fmt.Sprintf("%s=%s", pkg.PackageName, pr.Spec.PackageName),
+				"RepositoryName", fmt.Sprintf("%s=%s", pkg.RepositoryName, pr.Spec.RepositoryName),
+				"Revision", fmt.Sprintf("%s=%s", pkg.Revision, pr.Spec.Revision),
+			)
 			if pkg.PackageName == pr.Spec.PackageName &&
 				pkg.RepositoryName == pr.Spec.RepositoryName &&
 				pkg.Revision == pr.Spec.Revision {
@@ -151,6 +157,7 @@ func (r *reconciler) getResources(ctx context.Context, pd *autov1alpha1.PackageD
 			}
 		}
 	}
+	r.l.Info("key matches", "kets", prKeys)
 
 	resources := []unstructured.Unstructured{}
 	for _, prKey := range prKeys {
