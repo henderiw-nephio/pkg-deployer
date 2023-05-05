@@ -25,7 +25,6 @@ import (
 	"github.com/nokia/k8s-ipam/pkg/meta"
 	"github.com/nokia/k8s-ipam/pkg/resource"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -106,14 +105,9 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 
-		kc, err := yaml.Marshal(secret.Data["value"])
-		if err != nil {
-			r.l.Error(err, "cannot marshal yaml")
-			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
-		}
-		r.l.Info("cluster", "yaml config", string(kc))
+		r.l.Info("cluster", "yaml config", string(secret.Data["value"]))
 
-		config, err := clientcmd.RESTConfigFromKubeConfig(kc)
+		config, err := clientcmd.RESTConfigFromKubeConfig(secret.Data["value"])
 		if err != nil {
 			r.l.Error(err, "cannot get rest Config from kubeconfig")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
