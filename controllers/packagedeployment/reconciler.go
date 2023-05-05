@@ -26,9 +26,7 @@ import (
 	"github.com/nokia/k8s-ipam/pkg/resource"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
 	//autov1alpha1 "github.com/henderiw-nephio/pkg-deployer/apis/automation/v1alpha1"
@@ -112,18 +110,33 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			r.l.Error(err, "cannot get rest Config from kubeconfig")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
-		r.l.Info("cluster", "rest config", config)
-		clientset, err := kubernetes.NewForConfig(config)
+		//r.l.Info("cluster", "rest config", config)
+		clusterClient, err := client.New(config, client.Options{})
 		if err != nil {
-			r.l.Error(err, "cannot get rest Config from kubeconfig")
+			r.l.Error(err, "cannot get client from rest config")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
-
-		pods, err := clientset.CoreV1().Pods("kube-system").List(ctx, v1.ListOptions{})
-		if err != nil {
+        
+		pods := corev1.PodList{}
+		if err := clusterClient.List(ctx, &pods); err != nil {
 			r.l.Error(err, "cannot get pods")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
+
+		/*
+			clientset, err := kubernetes.NewForConfig(config)
+			if err != nil {
+				r.l.Error(err, "cannot get rest Config from kubeconfig")
+				return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+			}
+
+			pods, err := clientset.CoreV1().Pods(cr.GetNamespace()).List(ctx, v1.ListOptions{})
+			if err != nil {
+				r.l.Error(err, "cannot get pods")
+				return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+			}
+
+		*/
 		r.l.Info("cluster", "pods", pods)
 	}
 
