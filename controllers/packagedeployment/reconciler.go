@@ -103,11 +103,15 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			r.l.Error(err, "cannot get secret")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
 		}
-
-		config, err := clientcmd.Load([]byte(base64.StdEncoding.EncodeToString(secret.Data["value"])))
-		if err != nil {
+        var v []byte
+        _, err := base64.StdEncoding.Decode(v, secret.Data["value"])
+        if err != nil {
 			r.l.Error(err, "cannot load kubeconfig")
 		}
+        r.l.Info("cluster", "decoded secret", string(v))
+
+		config, err := clientcmd.Load(v)
+		
 
 		r.l.Info("cluster", "api config", config)
 	}
