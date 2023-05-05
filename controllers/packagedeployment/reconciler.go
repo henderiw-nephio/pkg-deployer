@@ -104,11 +104,26 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
 		r.l.Info("cluster", "secret", string(secret.Data["value"]))
 
-		config, err := clientcmd.Load(secret.Data["value"])
+		config, err := clientcmd.RESTConfigFromKubeConfig(secret.Data["value"])
 		if err != nil {
-			r.l.Error(err, "cannot load kubeconfig")
+			r.l.Error(err, "cannot get rest Config from kubeconfig")
+			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
-		r.l.Info("cluster", "api config", config)
+		clusterclient, err := client.New(config, client.Options{
+			Scheme: r.Scheme(),
+		})
+		if err != nil {
+			r.l.Error(err, "cannot get rest Config from kubeconfig")
+			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+		}
+
+		pods := &corev1.List{}
+		if err := clusterclient.List(ctx, pods); err != nil {
+			r.l.Error(err, "cannot get pods")
+			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+		}
+
+		r.l.Info("cluster", "pods", pods)
 	}
 
 	return ctrl.Result{}, nil
