@@ -10,8 +10,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+var file = "../../.kube/workload-config"
+
 func main() {
-	b, err := os.ReadFile("../data/config")
+	b, err := os.ReadFile("file")
 	if err != nil {
 		panic(err)
 	}
