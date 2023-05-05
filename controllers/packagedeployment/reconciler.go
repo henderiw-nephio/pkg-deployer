@@ -18,12 +18,16 @@ package packagedeployment
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/nokia/k8s-ipam/pkg/meta"
 	"github.com/nokia/k8s-ipam/pkg/resource"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/clientcmd"
 
 	//autov1alpha1 "github.com/henderiw-nephio/pkg-deployer/apis/automation/v1alpha1"
 	ctrlconfig "github.com/henderiw-nephio/pkg-deployer/controllers/config"
@@ -89,6 +93,21 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	if isReady(cr.GetConditions()) {
 		r.l.Info("resource ready")
+
+		secret := &corev1.Secret{}
+		if err := r.Get(ctx, types.NamespacedName{
+			Name:      fmt.Sprintf("%s-kubeconfig", cr.GetName()),
+			Namespace: cr.GetNamespace(),
+		}, secret); err != nil {
+			r.l.Error(err, "cannot get secret")
+			return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
+		}
+		config, err := clientcmd.Load(secret.Data["value"])
+		if err != nil {
+			r.l.Error(err, "cannot load kubeconfig")
+		}
+
+		r.l.Info("cluster", "api config", config)
 	}
 
 	return ctrl.Result{}, nil
