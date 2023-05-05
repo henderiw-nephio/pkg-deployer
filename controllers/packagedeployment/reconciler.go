@@ -31,6 +31,7 @@ import (
 
 	//autov1alpha1 "github.com/henderiw-nephio/pkg-deployer/apis/automation/v1alpha1"
 	ctrlconfig "github.com/henderiw-nephio/pkg-deployer/controllers/config"
+	"github.com/henderiw-nephio/pkg-deployer/pkg/applicator"
 	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -111,11 +112,12 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 		//r.l.Info("cluster", "rest config", config)
-		clusterClient, err := client.New(config, client.Options{})
+		clClient, err := client.New(config, client.Options{})
 		if err != nil {
 			r.l.Error(err, "cannot get client from rest config")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
+        clusterClient := applicator.NewAPIPatchingApplicator(clClient)
         
 		pods := corev1.PodList{}
 		if err := clusterClient.List(ctx, &pods); err != nil {
@@ -123,20 +125,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 
-		/*
-			clientset, err := kubernetes.NewForConfig(config)
-			if err != nil {
-				r.l.Error(err, "cannot get rest Config from kubeconfig")
-				return reconcile.Result{RequeueAfter: 5 * time.Second}, err
-			}
-
-			pods, err := clientset.CoreV1().Pods(cr.GetNamespace()).List(ctx, v1.ListOptions{})
-			if err != nil {
-				r.l.Error(err, "cannot get pods")
-				return reconcile.Result{RequeueAfter: 5 * time.Second}, err
-			}
-
-		*/
+		
 		r.l.Info("cluster", "pods", pods)
 	}
 
