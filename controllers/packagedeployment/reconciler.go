@@ -119,13 +119,27 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
         clusterClient := applicator.NewAPIPatchingApplicator(clClient)
         
+
 		pods := corev1.PodList{}
 		if err := clusterClient.List(ctx, &pods); err != nil {
 			r.l.Error(err, "cannot get pods")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 
-		
+		/*
+			clientset, err := kubernetes.NewForConfig(config)
+			if err != nil {
+				r.l.Error(err, "cannot get rest Config from kubeconfig")
+				return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+			}
+
+			pods, err := clientset.CoreV1().Pods(cr.GetNamespace()).List(ctx, v1.ListOptions{})
+			if err != nil {
+				r.l.Error(err, "cannot get pods")
+				return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+			}
+
+		*/
 		r.l.Info("cluster", "pods", pods)
 	}
 
