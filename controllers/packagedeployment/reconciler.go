@@ -105,7 +105,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 
-		r.l.Info("cluster", "yaml config", string(secret.Data["value"]))
+		r.l.Info("cluster", "config", string(secret.Data["value"]))
 
 		config, err := clientcmd.RESTConfigFromKubeConfig(secret.Data["value"])
 		if err != nil {
