@@ -1,0 +1,53 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations: {}
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/component: tbd
+    app.kubernetes.io/instance: tbd
+    app.kubernetes.io/managed-by: kpt
+    app.kubernetes.io/name: packagedeployer
+    app.kubernetes.io/part-of: packagedeployer
+    app.kubernetes.io/version: tbd
+  name: packagedeployer-controller-controller-role
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - events
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - create
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - create
+  - delete
+- apiGroups:
+  - automation.nephio.org
+  resources:
+  - packagedeployments
+  - packagedeployments/status
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - create
+  - delete

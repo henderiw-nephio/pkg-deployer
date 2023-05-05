@@ -1,0 +1,70 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations: {}
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/component: tbd
+    app.kubernetes.io/instance: tbd
+    app.kubernetes.io/managed-by: kpt
+    app.kubernetes.io/name: packagedeployer
+    app.kubernetes.io/part-of: packagedeployer
+    app.kubernetes.io/version: tbd
+  name: packagedeployer-controller-porch-role
+rules:
+- apiGroups:
+  - porch.kpt.dev
+  resources:
+  - packagerevisionresources
+  - packagerevisions
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - create
+  - delete
+- apiGroups:
+  - porch.kpt.dev
+  resources:
+  - packagerevisionresources/status
+  - packagerevisions/status
+  - packagerevisions/approval
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - clusters
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - create
+  - delete
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - clusters/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - automation.nephio.org
+  resources:
+  - packagedeployments
+  - packagedeployments/status
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+  - create
+  - delete
