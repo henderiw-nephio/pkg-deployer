@@ -23,6 +23,7 @@ import (
 	"github.com/nokia/k8s-ipam/pkg/meta"
 	"github.com/nokia/k8s-ipam/pkg/resource"
 	"github.com/pkg/errors"
+	corev1 "k8s.io/api/core/v1"
 
 	//autov1alpha1 "github.com/henderiw-nephio/pkg-deployer/apis/automation/v1alpha1"
 	ctrlconfig "github.com/henderiw-nephio/pkg-deployer/controllers/config"
@@ -31,15 +32,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-)
-
-const (
-	finalizer = "vlan.nephio.org/finalizer"
-	// errors
-	errGetCr        = "cannot get resource"
-	errUpdateStatus = "cannot update status"
-
-	//reconcileFailed = "reconcile failed"
 )
 
 //+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=clusters,verbs=get;list;watch;create;update;patch;delete
@@ -88,12 +80,36 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return reconcile.Result{}, nil
 	}
 
-	r.l.Info("reconcile", "spec", cr.Spec, "status", cr.Status)
+	r.l.Info("reconcile status", "ready status", getReadyStatus(cr.GetConditions()))
 
 	if meta.WasDeleted(cr) {
 		r.l.Info("resource deleted")
 		return reconcile.Result{}, nil
 	}
 
+	if isReady(cr.GetConditions()) {
+		r.l.Info("resource deleted")
+	}
+
 	return ctrl.Result{}, nil
+}
+
+func getReadyStatus(cs capiv1beta1.Conditions) capiv1beta1.Condition {
+	for _, c := range cs {
+		if c.Type == capiv1beta1.ReadyCondition {
+			return c
+		}
+	}
+	return capiv1beta1.Condition{}
+}
+
+func isReady(cs capiv1beta1.Conditions) bool {
+	for _, c := range cs {
+		if c.Type == capiv1beta1.ReadyCondition {
+			if c.Status == corev1.ConditionTrue {
+				return true
+			}
+		}
+	}
+	return false
 }
