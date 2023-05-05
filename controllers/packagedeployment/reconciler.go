@@ -103,8 +103,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			r.l.Error(err, "cannot get secret")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
 		}
-		v := []byte{}
-		_, err := base64.StdEncoding.Decode(v, secret.Data["value"])
+		v, err := base64.StdEncoding.DecodeString(string(secret.Data["value"]))
 		if err != nil {
 			r.l.Error(err, "cannot decode kubeconfig")
 		}
