@@ -25,6 +25,7 @@ import (
 	"github.com/nokia/k8s-ipam/pkg/meta"
 	"github.com/nokia/k8s-ipam/pkg/resource"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -105,7 +106,14 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 
-		config, err := clientcmd.RESTConfigFromKubeConfig(secret.Data["value"])
+		kc, err := yaml.Marshal(secret.Data["value"])
+		if err != nil {
+			r.l.Error(err, "cannot marshal yaml")
+			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+		}
+		r.l.Info("cluster", "yaml config", string(kc))
+
+		config, err := clientcmd.RESTConfigFromKubeConfig(kc)
 		if err != nil {
 			r.l.Error(err, "cannot get rest Config from kubeconfig")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
@@ -118,7 +126,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
 
 		pods, err := clientset.CoreV1().Pods(cr.GetNamespace()).List(ctx, v1.ListOptions{})
-        if err != nil {
+		if err != nil {
 			r.l.Error(err, "cannot get pods")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
