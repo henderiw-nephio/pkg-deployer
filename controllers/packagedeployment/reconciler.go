@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -101,12 +102,14 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			Namespace: cr.GetNamespace(),
 		}, secret); err != nil {
 			r.l.Error(err, "cannot get secret")
-			return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
-		v, _ := base64.StdEncoding.DecodeString(string(secret.Data["value"]))
-		//if err != nil {
-		//	r.l.Error(err, "cannot decode kubeconfig")
-		//}
+        r.l.Info("cluster", "secret", string(secret.Data["value"]))
+		v, err := base64.StdEncoding.DecodeString(strings.TrimSpace(string(secret.Data["value"])))
+		if err != nil {
+			r.l.Error(err, "cannot decode kubeconfig")
+			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
+		}
 		r.l.Info("cluster", "decoded secret", string(v))
 
 		config, err := clientcmd.Load(v)
