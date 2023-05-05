@@ -70,16 +70,17 @@ func (r *EnqueueRequestForAllClusters) add(obj runtime.Object, queue adder) {
 	r.l = log.FromContext(r.ctx)
 	r.l.Info("event", "kind", obj.GetObjectKind(), "name", c.GetName())
 
-	d := &autov1alpha1.PackageDeploymentList{}
-	if err := r.client.List(r.ctx, d); err != nil {
+	pds := &autov1alpha1.PackageDeploymentList{}
+	if err := r.client.List(r.ctx, pds); err != nil {
+		r.l.Error(err, "cannot list package deployments")
 		return
 	}
 
-	for _, p := range d.Items {
+	for _, pd := range pds.Items {
 		// requeue all ??
-		r.l.Info("event requeue prefix", "name", p.GetName())
+		r.l.Info("event requeue prefix", "name", pd.GetName())
 		queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{
-			Namespace: p.GetNamespace(),
-			Name:      p.GetName()}})
+			Namespace: pd.GetNamespace(),
+			Name:      pd.GetName()}})
 	}
 }
