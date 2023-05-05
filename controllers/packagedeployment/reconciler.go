@@ -113,7 +113,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 		r.l.Info("cluster", "rest config", config)
-		clientset := kubernetes.NewForConfigOrDie(config)
+		clientset, err := kubernetes.NewForConfig(config)
 		if err != nil {
 			r.l.Error(err, "cannot get rest Config from kubeconfig")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
