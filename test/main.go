@@ -13,7 +13,7 @@ import (
 var file = "../../.kube/workload-config"
 
 func main() {
-	b, err := os.ReadFile("file")
+	b, err := os.ReadFile(file)
 	if err != nil {
 		panic(err)
 	}
