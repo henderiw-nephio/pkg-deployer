@@ -42,7 +42,7 @@ type Package struct {
 // PackageDeploymentSpec defines the desired state of PackageDeployment
 type PackageDeploymentSpec struct {
 	// Packages defines the packages to deploy
-	Packages []Package `json:"packageRef"`
+	Packages []Package `json:"packages"`
 }
 
 // PackageDeploymentStatus defines the observed state of PackageDeployment

@@ -30,7 +30,7 @@ spec:
           spec:
             description: PackageDeploymentSpec defines the desired state of PackageDeployment
             properties:
-              packageRef:
+              packages:
                 description: Packages defines the packages to deploy
                 items:
                   description: Package is used to define a particular package revision.
@@ -54,7 +54,7 @@ spec:
                   type: object
                 type: array
             required:
-            - packageRef
+            - packages
             type: object
           status:
             description: PackageDeploymentStatus defines the observed state of PackageDeployment
