@@ -18,6 +18,7 @@ package packagedeployment
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"time"
 
@@ -102,8 +103,8 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			r.l.Error(err, "cannot get secret")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
 		}
-        r.l.Info("cluster", "secret", secret.Data["value"])
-		config, err := clientcmd.Load(secret.Data["value"])
+
+		config, err := clientcmd.Load([]byte(base64.StdEncoding.EncodeToString(secret.Data["value"])))
 		if err != nil {
 			r.l.Error(err, "cannot load kubeconfig")
 		}
