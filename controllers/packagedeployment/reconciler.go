@@ -88,7 +88,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	if isReady(cr.GetConditions()) {
-		r.l.Info("resource deleted")
+		r.l.Info("resource ready")
 	}
 
 	return ctrl.Result{}, nil
