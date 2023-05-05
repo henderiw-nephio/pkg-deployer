@@ -119,7 +119,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 		}
 
-		pods, err := clientset.CoreV1().Pods(cr.GetNamespace()).List(ctx, v1.ListOptions{})
+		pods, err := clientset.CoreV1().Pods("kube-system").List(ctx, v1.ListOptions{})
 		if err != nil {
 			r.l.Error(err, "cannot get pods")
 			return reconcile.Result{RequeueAfter: 5 * time.Second}, err

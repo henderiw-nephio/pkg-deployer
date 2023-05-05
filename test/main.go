@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	pods, err := clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{})
+	pods, err := clientset.CoreV1().Pods("kube-system").List(context.TODO(), v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
