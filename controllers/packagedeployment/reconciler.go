@@ -180,7 +180,7 @@ func (r *reconciler) getClusterClient(ctx context.Context, cr *capiv1beta1.Clust
 		return nil, err
 	}
 
-	r.l.Info("cluster", "config", string(secret.Data["value"]))
+	//r.l.Info("cluster", "config", string(secret.Data["value"]))
 
 	config, err := clientcmd.RESTConfigFromKubeConfig(secret.Data["value"])
 	if err != nil {
