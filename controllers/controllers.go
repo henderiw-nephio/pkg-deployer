@@ -20,15 +20,16 @@ import (
 	"context"
 
 	ctrlconfig "github.com/henderiw-nephio/pkg-deployer/controllers/config"
+	"github.com/henderiw-nephio/pkg-deployer/controllers/packagedeployment"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 // Setup  controllers.
 func Setup(ctx context.Context, mgr ctrl.Manager, opts *ctrlconfig.ControllerConfig) error {
-	for _, setup := range []func(ctx context.Context, mgr ctrl.Manager, cfg *ctrlconfig.ControllerConfig) error{
-		// TBD
+	for _, setup := range []func(mgr ctrl.Manager, cfg *ctrlconfig.ControllerConfig) error{
+		packagedeployment.Setup,
 	} {
-		if err := setup(ctx, mgr, opts); err != nil {
+		if err := setup(mgr, opts); err != nil {
 			return err
 		}
 	}
