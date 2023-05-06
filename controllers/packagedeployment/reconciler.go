@@ -99,6 +99,8 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 	}
 
+    r.l.Info("resources", "nbr", len(resources))
+
 	if len(resources) == 0 {
 		return reconcile.Result{}, nil
 	}
@@ -111,6 +113,8 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	clusterNotReady := false
 	for _, cluster := range clusters.Items {
+        r.l.WithValues("cluster", cluster.GetName())
+        r.l.Info("cluster status", "deleted", meta.WasDeleted(&cluster), "ready", getReadyStatus(cluster.GetConditions()))
 		if meta.WasDeleted(&cluster) {
 			continue
 		}
@@ -124,6 +128,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
 
 		for _, resource := range resources {
+            r.l.Info("install manifest", "resources", resource.GetName())
 			if err := clusterClient.Apply(ctx, &resource); err != nil {
 				r.l.Error(err, "cannot apply resource to cluster", "name", resource.GetName())
 			}
@@ -145,11 +150,13 @@ func (r *reconciler) getResources(ctx context.Context, pd *autov1alpha1.PackageD
 		for _, pkg := range pd.Spec.Packages {
 			// TODO namespace
 
-			r.l.Info("get resources",
-				"PackageName", fmt.Sprintf("%s=%s", pkg.PackageName, pr.Spec.PackageName),
-				"RepositoryName", fmt.Sprintf("%s=%s", pkg.RepositoryName, pr.Spec.RepositoryName),
-				"Revision", fmt.Sprintf("%s=%s", pkg.Revision, pr.Spec.Revision),
-			)
+			/*
+				r.l.Info("get resources",
+					"PackageName", fmt.Sprintf("%s=%s", pkg.PackageName, pr.Spec.PackageName),
+					"RepositoryName", fmt.Sprintf("%s=%s", pkg.RepositoryName, pr.Spec.RepositoryName),
+					"Revision", fmt.Sprintf("%s=%s", pkg.Revision, pr.Spec.Revision),
+				)
+			*/
 			if pkg.PackageName == pr.Spec.PackageName &&
 				pkg.RepositoryName == pr.Spec.RepositoryName &&
 				pkg.Revision == pr.Spec.Revision {
@@ -157,7 +164,7 @@ func (r *reconciler) getResources(ctx context.Context, pd *autov1alpha1.PackageD
 			}
 		}
 	}
-	r.l.Info("key matches", "kets", prKeys)
+	//r.l.Info("key matches", "keys", prKeys)
 
 	resources := []unstructured.Unstructured{}
 	for _, prKey := range prKeys {
@@ -202,7 +209,7 @@ func (r *reconciler) getClusterClient(ctx context.Context, cr *capiv1beta1.Clust
 	return applicator.NewAPIPatchingApplicator(clClient), nil
 }
 
-/*
+
 func getReadyStatus(cs capiv1beta1.Conditions) capiv1beta1.Condition {
 	for _, c := range cs {
 		if c.Type == capiv1beta1.ReadyCondition {
@@ -211,7 +218,6 @@ func getReadyStatus(cs capiv1beta1.Conditions) capiv1beta1.Condition {
 	}
 	return capiv1beta1.Condition{}
 }
-*/
 
 func isReady(cs capiv1beta1.Conditions) bool {
 	for _, c := range cs {
