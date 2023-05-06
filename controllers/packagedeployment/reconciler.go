@@ -120,6 +120,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
 		if !isReady(cluster.GetConditions()) {
 			clusterNotReady = true
+            continue
 		}
 		clusterClient, err := r.getClusterClient(ctx, &cluster)
 		if err != nil {
