@@ -99,7 +99,7 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return reconcile.Result{RequeueAfter: 5 * time.Second}, err
 	}
 
-    r.l.Info("resources", "nbr", len(resources))
+	r.l.Info("resources", "nbr", len(resources))
 
 	if len(resources) == 0 {
 		return reconcile.Result{}, nil
@@ -113,14 +113,14 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	clusterNotReady := false
 	for _, cluster := range clusters.Items {
-        r.l.WithValues("cluster", cluster.GetName())
-        r.l.Info("cluster status", "deleted", meta.WasDeleted(&cluster), "ready", getReadyStatus(cluster.GetConditions()))
+		r.l.WithValues("cluster", cluster.GetName())
+		r.l.Info("cluster status", "deleted", meta.WasDeleted(&cluster), "ready", getReadyStatus(cluster.GetConditions()))
 		if meta.WasDeleted(&cluster) {
 			continue
 		}
 		if !isReady(cluster.GetConditions()) {
 			clusterNotReady = true
-            continue
+			continue
 		}
 		clusterClient, err := r.getClusterClient(ctx, &cluster)
 		if err != nil {
@@ -129,8 +129,8 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
 
 		for _, resource := range resources {
-            r.l.Info("install manifest", "resources", 
-                fmt.Sprintf("%s.%s.%s", resource.GetAPIVersion(), resource.GetKind(), resource.GetName()))
+			r.l.Info("install manifest", "resources",
+				fmt.Sprintf("%s.%s.%s", resource.GetAPIVersion(), resource.GetKind(), resource.GetName()))
 			if err := clusterClient.Apply(ctx, &resource); err != nil {
 				r.l.Error(err, "cannot apply resource to cluster", "name", resource.GetName())
 			}
@@ -210,7 +210,6 @@ func (r *reconciler) getClusterClient(ctx context.Context, cr *capiv1beta1.Clust
 	}
 	return applicator.NewAPIPatchingApplicator(clClient), nil
 }
-
 
 func getReadyStatus(cs capiv1beta1.Conditions) capiv1beta1.Condition {
 	for _, c := range cs {
