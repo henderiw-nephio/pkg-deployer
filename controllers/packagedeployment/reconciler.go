@@ -128,7 +128,8 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
 
 		for _, resource := range resources {
-            r.l.Info("install manifest", "resources", resource.GetName())
+            r.l.Info("install manifest", "resources", 
+                fmt.Sprintf("%s.%s.%s", resource.GetAPIVersion(), resource.GetKind(), resource.GetName()))
 			if err := clusterClient.Apply(ctx, &resource); err != nil {
 				r.l.Error(err, "cannot apply resource to cluster", "name", resource.GetName())
 			}
