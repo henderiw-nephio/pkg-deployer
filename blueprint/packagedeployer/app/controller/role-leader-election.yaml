@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/part-of: packagedeployer
     app.kubernetes.io/version: tbd
   name: packagedeployer-controller-leader-election-role
-  namespace: nephio
+  namespace: nephio-system
 rules:
 - apiGroups:
   - ""

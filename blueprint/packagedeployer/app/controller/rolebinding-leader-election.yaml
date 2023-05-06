@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/part-of: packagedeployer
     app.kubernetes.io/version: tbd
   name: packagedeployer-controller-leader-election-role-binding
-  namespace: nephio
+  namespace: nephio-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -19,4 +19,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: packagedeployer-controller
-  namespace: nephio
+  namespace: nephio-system
